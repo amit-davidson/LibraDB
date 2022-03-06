@@ -1,4 +1,4 @@
-package main
+package LibraDB
 
 const (
 	magicNumberSize = 4

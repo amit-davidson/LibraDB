@@ -1,6 +1,6 @@
-package main
+package LibraDB
 
-func main() {
+func LibraDB() {
 	path := "libra.db"
 	db, _ := Open(path, DefaultOptions)
 

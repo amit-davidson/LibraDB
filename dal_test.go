@@ -1,4 +1,4 @@
-package main
+package LibraDB
 
 import (
 	"github.com/stretchr/testify/assert"
