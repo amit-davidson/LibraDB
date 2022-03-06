@@ -69,7 +69,7 @@ collection, err := tx.CreateCollection([]byte("test"))
 if err != nil {
 	return err
 }
-tx.Commit()
+_ = tx.Commit()
 ```
 
 ### Auto generating ID
@@ -81,7 +81,7 @@ if err != nil {
     return err
 }
 id := collection.ID()
-tx.Commit()
+_ = tx.Commit()
 ```
 ## Key-Value Pairs
 Key/value pairs reside inside collections. CRUD operations are possible using the methods `Collection.Put` 
@@ -103,5 +103,5 @@ if err := collection.Find(key); err != nil {
 if err := collection.Remove(key); err != nil {
     return err
 }
-tx.Commit()
+_ = tx.Commit()
 ```
