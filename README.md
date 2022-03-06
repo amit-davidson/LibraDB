@@ -21,18 +21,20 @@ go get -u github.com/amit-davidson/LibraDB
 ```go
 package main
 
+import "github.com/amit-davidson/LibraDB"
+
 func main() {
-    path := "libra.db"
-    db, _ := Open(path, DefaultOptions)
-    
-    tx := db.WriteTx()
-    name := []byte("test")
-    collection, _ := tx.CreateCollection(name)
+	path := "libra.db"
+	db, _ := LibraDB.Open(path, LibraDB.DefaultOptions)
 
-    key, value := []byte("key1"), []byte("value1")
-    _ = collection.Put(key, value)
+	tx := db.WriteTx()
+	name := []byte("test")
+	collection, _ := tx.CreateCollection(name)
 
-    _ = tx.Commit()
+	key, value := []byte("key1"), []byte("value1")
+	_ = collection.Put(key, value)
+
+	_ = tx.Commit()
 }
 ```
 ## Transactions
@@ -88,7 +90,7 @@ Key/value pairs reside inside collections. CRUD operations are possible using th
 `Collection.Find` `Collection.Remove` as shown below.   
 ```go
 tx := db.WriteTx()
-collection, err := tx.GetCollection([]byte("test"));
+collection, err := tx.GetCollection([]byte("test"))
 if  err != nil {
     return err
 }
@@ -97,9 +99,10 @@ key, value := []byte("key1"), []byte("value1")
 if err := collection.Put(key, value); err != nil {
     return err
 }
-if err := collection.Find(key); err != nil {
+if item, err := collection.Find(key); err != nil {
     return err
 }
+
 if err := collection.Remove(key); err != nil {
     return err
 }
