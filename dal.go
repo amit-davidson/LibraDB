@@ -37,7 +37,6 @@ type dal struct {
 
 	*meta
 	*freelist
-
 }
 
 func newDal(path string, options *Options) (*dal, error) {
