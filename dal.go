@@ -146,13 +146,6 @@ func (d *dal) allocateEmptyPage() *page {
 	}
 }
 
-func (d *dal) allocatePage() *page {
-	return &page{
-		num:  d.getNextPage(),
-		data: make([]byte, d.pageSize),
-	}
-}
-
 func (d *dal) readPage(pageNum pgnum) (*page, error) {
 	p := d.allocateEmptyPage()
 
@@ -215,7 +208,8 @@ func (d *dal) readFreelist() (*freelist, error) {
 }
 
 func (d *dal) writeFreelist() (*page, error) {
-	p := d.allocatePage()
+	p := d.allocateEmptyPage()
+	p.num = d.getNextPage()
 	p.data = d.freelist.serialize()
 
 	err := d.writePage(p)
