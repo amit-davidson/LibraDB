@@ -129,10 +129,6 @@ func (d *dal) isUnderPopulated(node *Node) bool {
 	return float32(node.nodeSize()) < d.minThreshold()
 }
 
-func (d *dal) getCollectionsRootPage() pgnum {
-	return d.root
-}
-
 func (d *dal) close() error {
 	if d.file != nil {
 		err := d.file.Close()
