@@ -6,10 +6,6 @@ import (
 	"os"
 )
 
-const (
-	metaPageNum = 0
-)
-
 type pgnum uint64
 
 type Options struct {
