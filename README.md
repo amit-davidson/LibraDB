@@ -77,7 +77,7 @@ _ = tx.Commit()
 ### Auto generating ID
 The `Collection.ID()` function returns an integer to be used as a unique identifier for key/value pairs.
 ```go
-tx := db.ReadTx()
+tx := db.WriteTx()
 collection, err := tx.GetCollection([]byte("test"))
 if err != nil {
     return err
