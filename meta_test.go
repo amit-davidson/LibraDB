@@ -11,7 +11,8 @@ func TestMetaSerialize(t *testing.T) {
 	meta := newEmptyMeta()
 	meta.root = 3
 	meta.freelistPage = 4
-	actual := meta.serialize()
+	actual := make([]byte, testPageSize, testPageSize)
+	meta.serialize(actual)
 
 	expected, err := os.ReadFile(getExpectedResultFileName(t.Name()))
 	require.NoError(t, err)

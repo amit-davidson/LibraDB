@@ -940,7 +940,7 @@ func TestSerializeWithoutChildNodes(t *testing.T) {
 		childNodes: childNodes,
 	}
 
-	actual := node.serialize(testPageSize)
+	actual := node.serialize(make([]byte, testPageSize, testPageSize))
 
 	expectedPage, err := os.ReadFile(getExpectedResultFileName(t.Name()))
 	require.NoError(t, err)
@@ -972,7 +972,7 @@ func TestSerializeWithChildNodes(t *testing.T) {
 		childNodes: childNodes,
 	}
 
-	actual := node.serialize(testPageSize)
+	actual := node.serialize(make([]byte, testPageSize, testPageSize))
 
 	expectedPage, err := os.ReadFile(getExpectedResultFileName(t.Name()))
 	require.NoError(t, err)

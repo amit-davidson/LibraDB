@@ -11,7 +11,7 @@ func TestFreelistSerialize(t *testing.T) {
 	freelist := newFreelist()
 	freelist.maxPage = 5
 	freelist.releasedPages = []pgnum{1, 2, 3}
-	actual := freelist.serialize()
+	actual := freelist.serialize(make([]byte, testPageSize, testPageSize))
 
 	expected, err := os.ReadFile(getExpectedResultFileName(t.Name()))
 	require.NoError(t, err)
