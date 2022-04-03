@@ -21,10 +21,8 @@ func newEmptyMeta() *meta {
 	return &meta{}
 }
 
-func (m *meta) serialize() []byte {
-	buf := make([]byte, metaSize)
+func (m *meta) serialize(buf []byte) {
 	pos := 0
-
 	binary.LittleEndian.PutUint32(buf[pos:], magicNumber)
 	pos += magicNumberSize
 
@@ -33,8 +31,6 @@ func (m *meta) serialize() []byte {
 
 	binary.LittleEndian.PutUint64(buf[pos:], uint64(m.freelistPage))
 	pos += pageNumSize
-
-	return buf
 }
 
 func (m *meta) deserialize(buf []byte) {

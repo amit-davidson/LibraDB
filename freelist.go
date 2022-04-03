@@ -38,8 +38,7 @@ func (fr *freelist) releasePage(page pgnum) {
 	fr.releasedPages = append(fr.releasedPages, page)
 }
 
-func (fr *freelist) serialize() []byte {
-	buf := make([]byte, 4 + pageNumSize*len(fr.releasedPages))
+func (fr *freelist) serialize(buf []byte) []byte {
 	pos := 0
 
 	binary.LittleEndian.PutUint16(buf[pos:], uint16(fr.maxPage))

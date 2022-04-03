@@ -69,10 +69,9 @@ func (n *Node) isUnderPopulated() bool {
 	return n.tx.db.isUnderPopulated(n)
 }
 
-func (n *Node) serialize(pageSize int) []byte {
-	buf := make([]byte, pageSize)
+func (n *Node) serialize(buf []byte) []byte {
 	leftPos := 0
-	rightPos := pageSize - 1
+	rightPos := len(buf) - 1
 
 	// Add page header: isLeaf, key-value pairs count, node num
 	// isLeaf
