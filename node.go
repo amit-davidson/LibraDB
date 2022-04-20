@@ -235,18 +235,21 @@ func (n *Node) findKey(key []byte, exact bool) (int, *Node, []int ,error) {
 }
 
 // findKeyInNode iterates all the items and finds the key. If the key is found, then the item is returned. If the key
-// isn't found then it means we have to keep searching the tree.
+// isn't found then return the index where it should have been (the first index that key is greater than it's previous)
 func (n *Node) findKeyInNode(key []byte) (bool, int) {
 	for i, existingItem := range n.items {
-		res := bytes.Compare(key, existingItem.key)
-		if res == 0 {
+		res := bytes.Compare(existingItem.key, key)
+		if res == 0 { // Keys match
 			return true, i
 		}
 
-		if res == -1 {
+		// The key is bigger than the previous item, so it doesn't exist in the node, but may exist in child nodes.
+		if res == 1 {
 			return false, i
 		}
 	}
+
+	// The key isn't bigger than any of the items which means it's in the last index.
 	return false, len(n.items)
 }
 
