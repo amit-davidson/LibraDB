@@ -206,32 +206,40 @@ func (n *Node) nodeSize() int {
 	return size
 }
 
-// findKey finds the node with the key, it's index in the parent's items and a list of its ancestors (not including the
-// node itself). The parent's items and key are used later for operations such as searching, adding and removing and
-// list of ancestors is used for rebalancing. It's also known as breadcrumbs.
-// When the item isn't found, if exact is true, then a falsey answer is returned. If exact is false, then the index
-// where the item should have been is returned (Used for insertion)
+// findKey searches for a key inside the tree. Once the key is found, the parent node and the correct index are returned
+// so the key itself can be accessed in the following way parent[index]. A list of the node ancestors (not including the
+// node itself) is also returned.
+// If the key isn't found, we have 2 options. If exact is true, it means we expect findKey
+// to find the key, so a falsey answer. If exact is false, then findKey is used to locate where a new key should be
+// inserted so the position is returned.
 func (n *Node) findKey(key []byte, exact bool) (int, *Node, []int ,error) {
-	node := n
-	// Find the path to the node where the deletion should happen
 	ancestorsIndexes := []int{0} // index of root
-	for true {
-		wasFound, index := node.findKeyInNode(key)
-		if wasFound {
-			return index, node, ancestorsIndexes, nil
-		} else {
-			if node.isLeaf() {
-				if exact {
-					return -1, nil, nil, nil
-				}
-				return index, node, ancestorsIndexes, nil
-			}
-			nextChild, _ := node.tx.getNode(node.childNodes[index])
-			ancestorsIndexes = append(ancestorsIndexes, index)
-			node = nextChild
-		}
+	index, node, err := findKeyHelper(n, key, exact, &ancestorsIndexes)
+	if err != nil {
+		return -1, nil, nil, err
 	}
-	return -1, nil, nil, nil
+	return index, node, ancestorsIndexes, nil
+}
+
+func findKeyHelper(node *Node, key []byte, exact bool, ancestorsIndexes *[]int) (int, *Node ,error) {
+	wasFound, index := node.findKeyInNode(key)
+	if wasFound {
+		return index, node, nil
+	}
+
+	if node.isLeaf() {
+		if exact {
+			return -1, nil, nil
+		}
+		return index, node, nil
+	}
+
+	*ancestorsIndexes = append(*ancestorsIndexes, index)
+	nextChild, err := node.tx.getNode(node.childNodes[index])
+	if err != nil {
+		return -1, nil, err
+	}
+	return findKeyHelper(nextChild, key, exact, ancestorsIndexes)
 }
 
 // findKeyInNode iterates all the items and finds the key. If the key is found, then the item is returned. If the key
