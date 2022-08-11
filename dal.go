@@ -29,7 +29,7 @@ type dal struct {
 	pageSize       int
 	minFillPercent float32
 	maxFillPercent float32
-	file *os.File
+	file           *os.File
 
 	*meta
 	*freelist
@@ -103,7 +103,7 @@ func (d *dal) getSplitIndex(node *Node) int {
 
 		// if we have a big enough page size (more than minimum), and didn't reach the last node, which means we can
 		// spare an element
-		if float32(size) > d.minThreshold() && i < len(node.items) - 1 {
+		if float32(size) > d.minThreshold() && i < len(node.items)-1 {
 			return i + 1
 		}
 	}
@@ -111,9 +111,12 @@ func (d *dal) getSplitIndex(node *Node) int {
 	return -1
 }
 
+func (d *dal) maxThreshold() float32 {
+	return d.maxFillPercent * float32(d.pageSize)
+}
 
 func (d *dal) isOverPopulated(node *Node) bool {
-	return float32(node.nodeSize()) > d.maxFillPercent*float32(d.pageSize)
+	return float32(node.nodeSize()) > d.maxThreshold()
 }
 
 func (d *dal) minThreshold() float32 {
