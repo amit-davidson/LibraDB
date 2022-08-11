@@ -79,14 +79,7 @@ func (c *Collection) Put(key []byte, value []byte) error {
 		return err
 	}
 
-	if insertionIndex == -1 {
-		// Set in place
-		nodeToInsertIn.items[insertionIndex] = i
-	} else {
-		// Add item to the leaf node
-		nodeToInsertIn.addItem(i, insertionIndex)
-
-	}
+	nodeToInsertIn.addItem(i, insertionIndex)
 	nodeToInsertIn.tx.writeNode(nodeToInsertIn)
 
 	ancestors, err := c.getNodes(ancestorsIndexes)
