@@ -261,11 +261,6 @@ func (n *Node) findKeyInNode(key []byte) (bool, int) {
 	return false, len(n.items)
 }
 
-// setItem sets an item at the given index
-func (n *Node) setItem(item *Item, insertionIndex int) {
-	n.items[insertionIndex] = item
-}
-
 func (n *Node) addItem(item *Item, insertionIndex int) int {
 	if len(n.items) == insertionIndex { // nil or empty slice or after last element
 		n.items = append(n.items, item)

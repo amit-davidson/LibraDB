@@ -80,7 +80,8 @@ func (c *Collection) Put(key []byte, value []byte) error {
 	}
 
 	if insertionIndex == -1 {
-		nodeToInsertIn.setItem(i, insertionIndex)
+		// Set in place
+		nodeToInsertIn.items[insertionIndex] = i
 	} else {
 		// Add item to the leaf node
 		nodeToInsertIn.addItem(i, insertionIndex)
