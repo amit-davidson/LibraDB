@@ -294,7 +294,7 @@ func (n *Node) split(modifiedNode *Node, insertionIndex int) {
 		newNode = n.tx.writeNode(n.tx.newNode(modifiedNode.items[splitIndex+1:], []pgnum{}))
 		modifiedNode.items = modifiedNode.items[:splitIndex]
 	} else {
-		newNode = n.tx.writeNode(n.tx.newNode(modifiedNode.items[splitIndex+1:], modifiedNode.childNodes[1:]))
+		newNode = n.tx.writeNode(n.tx.newNode(modifiedNode.items[splitIndex+1:], modifiedNode.childNodes[splitIndex+1:]))
 		modifiedNode.items = modifiedNode.items[:splitIndex]
 		modifiedNode.childNodes = modifiedNode.childNodes[:splitIndex+1]
 	}
