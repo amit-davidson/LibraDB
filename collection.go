@@ -1,6 +1,9 @@
 package LibraDB
 
-import "encoding/binary"
+import (
+	"bytes"
+	"encoding/binary"
+)
 
 type Collection struct {
 	name []byte
@@ -79,7 +82,13 @@ func (c *Collection) Put(key []byte, value []byte) error {
 		return err
 	}
 
-	nodeToInsertIn.addItem(i, insertionIndex)
+	// If key already exists
+	if nodeToInsertIn.items != nil && bytes.Compare(nodeToInsertIn.items[insertionIndex].key, key) == 0 {
+		nodeToInsertIn.items[insertionIndex] = i
+	} else {
+		// Add item to the leaf node
+		nodeToInsertIn.addItem(i, insertionIndex)
+	}
 	nodeToInsertIn.tx.writeNode(nodeToInsertIn)
 
 	ancestors, err := c.getNodes(ancestorsIndexes)
