@@ -280,41 +280,33 @@ func (n *Node) addItem(item *Item, insertionIndex int) int {
 // 	           n                                        n
 //                 3                                       3,6
 //	      /        \           ------>       /          |          \
-//	   a           modifiedNode            a       modifiedNode     c
+//	   a           modifiedNode            a       modifiedNode     newNode
 //   1,2                 4,5,6,7,8            1,2          4,5         7,8
 func (n *Node) split(modifiedNode *Node, insertionIndex int) {
-	i := 0
+	// The first index where min amount of bytes to populate a page is achieved. Then add 1 so it will be split one
+	// index after.
+	splitIndex := modifiedNode.tx.db.getSplitIndex(modifiedNode)
 
-	for modifiedNode.isOverPopulated() {
-		// The first index where min amount of bytes to populate a page is achieved. Then add 1 so it will be split one
-		// index after.
-		splitIndex := modifiedNode.tx.db.getSplitIndex(modifiedNode)
+	middleItem := modifiedNode.items[splitIndex]
+	var newNode *Node
 
-		middleItem := modifiedNode.items[splitIndex]
-		var newNode *Node
-
-		if modifiedNode.isLeaf() {
-			newNode = n.tx.writeNode(n.tx.newNode(modifiedNode.items[splitIndex+1:], []pgnum{}))
-			modifiedNode.items = modifiedNode.items[:splitIndex]
-		} else {
-			newNode = n.tx.writeNode(n.tx.newNode(modifiedNode.items[splitIndex+1:], modifiedNode.childNodes[i+1:]))
-			modifiedNode.items = modifiedNode.items[:splitIndex]
-			modifiedNode.childNodes = modifiedNode.childNodes[:splitIndex+1]
-		}
-		n.addItem(middleItem, insertionIndex)
-		if len(n.childNodes) == insertionIndex+1 { // If middle of list, then move items forward
-			n.childNodes = append(n.childNodes, newNode.pageNum)
-		} else {
-			n.childNodes = append(n.childNodes[:insertionIndex+1], n.childNodes[insertionIndex:]...)
-			n.childNodes[insertionIndex+1] = newNode.pageNum
-		}
-
-		n.tx.writeNodes(n, modifiedNode)
-
-		insertionIndex += 1
-		i += 1
-		modifiedNode = newNode
+	if modifiedNode.isLeaf() {
+		newNode = n.tx.writeNode(n.tx.newNode(modifiedNode.items[splitIndex+1:], []pgnum{}))
+		modifiedNode.items = modifiedNode.items[:splitIndex]
+	} else {
+		newNode = n.tx.writeNode(n.tx.newNode(modifiedNode.items[splitIndex+1:], modifiedNode.childNodes[1:]))
+		modifiedNode.items = modifiedNode.items[:splitIndex]
+		modifiedNode.childNodes = modifiedNode.childNodes[:splitIndex+1]
 	}
+	n.addItem(middleItem, insertionIndex)
+	if len(n.childNodes) == insertionIndex+1 { // If middle of list, then move items forward
+		n.childNodes = append(n.childNodes, newNode.pageNum)
+	} else {
+		n.childNodes = append(n.childNodes[:insertionIndex+1], n.childNodes[insertionIndex:]...)
+		n.childNodes[insertionIndex+1] = newNode.pageNum
+	}
+
+	n.tx.writeNodes(n, modifiedNode)
 }
 
 // rebalanceRemove rebalances the tree after a remove operation. This can be either by rotating to the right, to the
