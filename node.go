@@ -277,17 +277,6 @@ func (n *Node) addItem(item *Item, insertionIndex int) int {
 	return insertionIndex
 }
 
-// addChild adds a child at a given position. If the child is in the end, then the list is appended. Otherwise, the list
-// is shifted and the child is inserted.
-func (n *Node) addChild(node *Node, insertionIndex int) {
-	if len(n.childNodes) == insertionIndex { // nil or empty slice or after last element
-		n.childNodes = append(n.childNodes, node.pageNum)
-	}
-
-	n.childNodes = append(n.childNodes[:insertionIndex+1], n.childNodes[insertionIndex:]...)
-	n.childNodes[insertionIndex] = node.pageNum
-}
-
 // split rebalances the tree after adding. After insertion the modified node has to be checked to make sure it
 // didn't exceed the maximum number of elements. If it did, then it has to be split and rebalanced. The transformation
 // is depicted in the graph below. If it's not a leaf node, then the children has to be moved as well as shown.
