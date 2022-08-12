@@ -83,7 +83,7 @@ func (c *Collection) Put(key []byte, value []byte) error {
 	}
 
 	// If key already exists
-	if nodeToInsertIn.items != nil && bytes.Compare(nodeToInsertIn.items[insertionIndex].key, key) == 0 {
+	if nodeToInsertIn.items != nil && insertionIndex < len(nodeToInsertIn.items) && bytes.Compare(nodeToInsertIn.items[insertionIndex].key, key) == 0 {
 		nodeToInsertIn.items[insertionIndex] = i
 	} else {
 		// Add item to the leaf node
