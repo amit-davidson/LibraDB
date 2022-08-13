@@ -342,6 +342,18 @@ func (n *Node) rebalanceRemove(unbalancedNode *Node, unbalancedNodeIndex int) er
 		}
 	}
 
+	// The merge function merges a given node with its node to the right. So by default, we merge an unbalanced node
+	// with its right sibling. In the case where the unbalanced node is the leftmost, we have to replace the merge
+	// parameters, so the unbalanced node right sibling, will be merged into the unbalanced node.
+	if unbalancedNodeIndex == 0 {
+		rightNode, err := n.tx.getNode(n.childNodes[unbalancedNodeIndex+1])
+		if err != nil {
+			return err
+		}
+
+		return pNode.merge(rightNode, unbalancedNodeIndex+1)
+	}
+
 	return pNode.merge(unbalancedNode, unbalancedNodeIndex)
 }
 
@@ -437,58 +449,28 @@ func rotateLeft(aNode, pNode, bNode *Node, bNodeIndex int) {
 	}
 }
 
-func (n *Node) merge(unbalancedNode *Node, unbalancedNodeIndex int) error {
-	var aNode, bNode *Node
-	var err error
-	if unbalancedNodeIndex == 0 {
-		// 	               p                                     p
-		//                2,5                                    5
-		//	      /        |       \       ------>         /          \
-		//  a(unbalanced)   b         c                   a            c
-		//   1             3,4          6,7              1,2,3,4        6,7
-		aNode = unbalancedNode
-		bNode, err = n.tx.getNode(n.childNodes[unbalancedNodeIndex+1])
-		if err != nil {
-			return err
-		}
+func (n *Node) merge(bNode *Node, bNodeIndex int) error {
+	// 	               p                                     p
+	//                3,5                                    5
+	//	      /        |       \       ------>         /          \
+	//       a   	   b        c                     a            c
+	//     1,2         4        6,7                 1,2,3,4         6,7
+	aNode, err := n.tx.getNode(n.childNodes[bNodeIndex-1])
+	if err != nil {
+		return err
+	}
 
-		// Take the item from the parent, remove it and add it to the unbalanced node
-		pNodeItem := n.items[0]
-		n.items = n.items[1:]
-		aNode.items = append(aNode.items, pNodeItem)
+	// Take the item from the parent, remove it and add it to the unbalanced node
+	pNodeItem := n.items[bNodeIndex-1]
+	n.items = append(n.items[:bNodeIndex-1], n.items[bNodeIndex:]...)
+	aNode.items = append(aNode.items, pNodeItem)
 
-		//merge the bNode to aNode and remove it. Handle its child nodes as well.
-		aNode.items = append(aNode.items, bNode.items...)
-		n.childNodes = append(n.childNodes[0:1], n.childNodes[2:]...)
-		if !bNode.isLeaf() {
-			aNode.childNodes = append(aNode.childNodes, bNode.childNodes...)
-		}
-	} else {
-		// 	               p                                     p
-		//                3,5                                    5
-		//	      /        |       \       ------>         /          \
-		//       a   b(unbalanced)   c                    a            c
-		//     1,2         4        6,7                 1,2,3,4         6,7
-		aNode, err = n.tx.getNode(n.childNodes[unbalancedNodeIndex-1])
-		if err != nil {
-			return err
-		}
-
-		bNode = unbalancedNode
-
-		// Take the item from the parent, remove it and add it to the unbalanced node
-		pNodeItem := n.items[unbalancedNodeIndex-1]
-		n.items = append(n.items[:unbalancedNodeIndex-1], n.items[unbalancedNodeIndex:]...)
-		aNode.items = append(aNode.items, pNodeItem)
-
-		aNode.items = append(aNode.items, bNode.items...)
-		n.childNodes = append(n.childNodes[:unbalancedNodeIndex], n.childNodes[unbalancedNodeIndex+1:]...)
-		if !aNode.isLeaf() {
-			bNode.childNodes = append(aNode.childNodes, bNode.childNodes...)
-		}
+	aNode.items = append(aNode.items, bNode.items...)
+	n.childNodes = append(n.childNodes[:bNodeIndex], n.childNodes[bNodeIndex+1:]...)
+	if !aNode.isLeaf() {
+		aNode.childNodes = append(aNode.childNodes, bNode.childNodes...)
 	}
 	n.tx.writeNodes(aNode, n)
 	n.tx.deleteNode(bNode)
 	return nil
-
 }
