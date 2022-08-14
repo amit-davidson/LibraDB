@@ -310,7 +310,7 @@ func (n *Node) split(nodeToSplit *Node, nodeToSplitIndex int) {
 }
 
 // rebalanceRemove rebalances the tree after a remove operation. This can be either by rotating to the right, to the
-// left or by merging. Firstly, the sibling nodes are checked to see if they have enough items for rebalancing
+// left or by merging. First, the sibling nodes are checked to see if they have enough items for rebalancing
 // (>= minItems+1). If they don't have enough items, then merging with one of the sibling nodes occurs. This may leave
 // the parent unbalanced by having too little items so rebalancing has to be checked for all the ancestors.
 func (n *Node) rebalanceRemove(unbalancedNode *Node, unbalancedNodeIndex int) error {
