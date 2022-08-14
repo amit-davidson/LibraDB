@@ -365,7 +365,8 @@ func (n *Node) removeItemFromLeaf(index int) {
 
 func (n *Node) removeItemFromInternal(index int) ([]int, error) {
 	// Take element before inorder (The biggest element from the left branch), put it in the removed index and remove
-	// it from the original node.
+	// it from the original node. Track in affectedNodes any nodes in the path leading to that node. It will be used
+	// in case the tree needs to be rebalanced.
 	//          p
 	//       /
 	//     ..
@@ -375,6 +376,7 @@ func (n *Node) removeItemFromInternal(index int) ([]int, error) {
 	affectedNodes := make([]int, 0)
 	affectedNodes = append(affectedNodes, index)
 
+	// Starting from its left child, descend to the rightmost descendant.
 	aNode, _ := n.tx.getNode(n.childNodes[index])
 	for !aNode.isLeaf() {
 		traversingIndex := len(n.childNodes) - 1
@@ -382,6 +384,7 @@ func (n *Node) removeItemFromInternal(index int) ([]int, error) {
 		affectedNodes = append(affectedNodes, traversingIndex)
 	}
 
+	// Replace the item that should be removed with the item before inorder which we just found.
 	n.items[index] = aNode.items[len(aNode.items)-1]
 	aNode.items = aNode.items[:len(aNode.items)-1]
 	n.tx.writeNodes(n, aNode)
