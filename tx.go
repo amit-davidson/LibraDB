@@ -122,6 +122,10 @@ func (tx *tx) Rollback() {
 }
 
 func (tx *tx) Commit() error {
+	if !tx.write {
+		return nil
+	}
+
 	for _, node := range tx.dirtyNodes {
 		_, err := tx.db.writeNode(node)
 		if err != nil {
@@ -148,9 +152,7 @@ func (tx *tx) Commit() error {
 	tx.dirtyNodes = nil
 	tx.pagesToDelete = nil
 	tx.allocatedPageNums = nil
-	if tx.write {
-		tx.db.rwlock.Unlock()
-	}
+	tx.db.rwlock.Unlock()
 	return nil
 }
 
@@ -172,6 +174,10 @@ func (tx *tx) GetCollection(name []byte) (*Collection, error) {
 }
 
 func (tx *tx) CreateCollection(name []byte) (*Collection, error) {
+	if !tx.write {
+		return nil, writeInsideReadTxErr
+	}
+
 	rootCollection := tx.getRootCollection()
 
 	newCollectionPage, err := tx.db.writeNode(NewEmptyNode())
@@ -194,6 +200,10 @@ func (tx *tx) CreateCollection(name []byte) (*Collection, error) {
 }
 
 func (tx *tx) DeleteCollection(name []byte) error {
+	if !tx.write {
+		return writeInsideReadTxErr
+	}
+
 	rootCollection := tx.getRootCollection()
 
 	return rootCollection.Remove(name)

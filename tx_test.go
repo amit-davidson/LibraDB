@@ -27,6 +27,18 @@ func TestTx_CreateCollection(t *testing.T) {
 	areCollectionsEqual(t, collection, actualCollection)
 }
 
+func TestTx_CreateCollectionReadTx(t *testing.T) {
+	db, cleanFunc := createTestDB(t)
+	defer cleanFunc()
+
+	tx := db.ReadTx()
+	collection, err := tx.CreateCollection(testCollectionName)
+	require.Error(t, err)
+	require.Nil(t, collection)
+
+	err = tx.Commit()
+}
+
 func TestTx_Rollback(t *testing.T) {
 	db, cleanFunc := createTestDB(t)
 	defer cleanFunc()
