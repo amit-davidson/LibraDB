@@ -123,6 +123,7 @@ func (tx *tx) Rollback() {
 
 func (tx *tx) Commit() error {
 	if !tx.write {
+		tx.db.rwlock.RUnlock()
 		return nil
 	}
 

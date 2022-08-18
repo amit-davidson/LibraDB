@@ -6,7 +6,7 @@ import (
 )
 
 type DB struct {
-	rwlock   sync.Mutex   // Allows only one writer at a time
+	rwlock   sync.RWMutex   // Allows only one writer at a time
 	*dal
 }
 
@@ -20,7 +20,7 @@ func Open(path string, options *Options) (*DB, error) {
 	}
 
 	db := &DB{
-		sync.Mutex{},
+		sync.RWMutex{},
 		dal,
 	}
 
@@ -32,6 +32,7 @@ func (db *DB) Close() error {
 }
 
 func (db *DB) ReadTx() *tx {
+	db.rwlock.RLock()
 	return newTx(db, db.root, false)
 }
 
