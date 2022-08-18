@@ -56,6 +56,8 @@ func TestTx_Rollback(t *testing.T) {
 	err = tx.Commit()
 	require.NoError(t, err)
 
+	assert.Len(t, tx.db.freelist.releasedPages, 0)
+
 	// Try to add 9 but then perform a rollback, so it won't be saved
 	tx2 := db.WriteTx()
 
@@ -68,9 +70,10 @@ func TestTx_Rollback(t *testing.T) {
 
 	tx2.Rollback()
 
-	// 9 should not exist. Also, a new page should be added to released page ids.
+	// 9 should not exist since a rollback was performed. A new page should be added to released page ids though, since
+	// a split occurred and a new page node was created, but later deleted.
+	assert.Len(t, tx2.db.freelist.releasedPages, 1)
 	tx3 := db.ReadTx()
-	assert.Len(t, tx3.db.freelist.releasedPages, 1)
 
 	collection, err = tx3.GetCollection(collection.name)
 	require.NoError(t, err)
@@ -84,5 +87,5 @@ func TestTx_Rollback(t *testing.T) {
 	err = tx3.Commit()
 	require.NoError(t, err)
 
-	assert.Len(t, tx3.db.freelist.releasedPages, 0)
+	assert.Len(t, tx3.db.freelist.releasedPages, 1)
 }

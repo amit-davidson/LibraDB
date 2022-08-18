@@ -72,6 +72,7 @@ func newDal(path string, options *Options) (*dal, error) {
 		}
 
 		dal.freelist = newFreelist()
+		dal.freelistPage = dal.getNextPage()
 		_, err := dal.writeFreelist()
 		if err != nil {
 			return nil, err
@@ -206,12 +207,9 @@ func (d *dal) readFreelist() (*freelist, error) {
 	return freelist, nil
 }
 
-// writeFreelist first marks the previous freelist page as deleted, then proceeds to request a new page.
 func (d *dal) writeFreelist() (*page, error) {
-	d.deleteNode(d.freelistPage)
-
 	p := d.allocateEmptyPage()
-	p.num = d.getNextPage()
+	p.num = d.freelistPage
 	d.freelist.serialize(p.data)
 
 	err := d.writePage(p)
