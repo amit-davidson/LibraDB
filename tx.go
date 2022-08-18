@@ -82,15 +82,7 @@ func (tx *tx) Commit() error {
 	for _, pageNum := range tx.pagesToDelete {
 		tx.db.deleteNode(pageNum)
 	}
-	freelistPage, err := tx.db.writeFreelist()
-	if err != nil {
-		return err
-	}
-
-	newMeta := newEmptyMeta()
-	newMeta.root = tx.db.root
-	newMeta.freelistPage = freelistPage.num
-	_ , err = tx.db.writeMeta(newMeta)
+	_, err := tx.db.writeFreelist()
 	if err != nil {
 		return err
 	}
