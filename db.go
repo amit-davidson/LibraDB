@@ -33,10 +33,10 @@ func (db *DB) Close() error {
 
 func (db *DB) ReadTx() *tx {
 	db.rwlock.RLock()
-	return newTx(db, db.root, false)
+	return newTx(db, false)
 }
 
 func (db *DB) WriteTx() *tx {
 	db.rwlock.Lock()
-	return newTx(db, db.root, true)
+	return newTx(db, true)
 }

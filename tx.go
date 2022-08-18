@@ -9,17 +9,15 @@ type tx struct {
 
 	write bool
 
-	root pgnum
 	db   *DB
 }
 
-func newTx(db *DB, root pgnum, write bool) *tx {
+func newTx(db *DB, write bool) *tx {
 	return &tx{
 		map[pgnum]*Node{},
 		make([]pgnum, 0),
 		make([]pgnum, 0),
 		write,
-		root,
 		db,
 	}
 }
@@ -106,7 +104,7 @@ func (tx *tx) deleteNode(node *Node) {
 
 func (tx *tx) getRootCollection() *Collection {
 	rootCollection := newEmptyCollection()
-	rootCollection.root = tx.root
+	rootCollection.root = tx.db.root
 	rootCollection.tx = tx
 	return rootCollection
 }
