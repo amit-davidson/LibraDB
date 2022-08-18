@@ -57,6 +57,11 @@ func (tx *tx) deleteNode(node *Node) {
 }
 
 func (tx *tx) Rollback() {
+	if !tx.write {
+		tx.db.rwlock.RUnlock()
+		return
+	}
+
 	tx.dirtyNodes = nil
 	tx.pagesToDelete = nil
 	for _, pageNum := range tx.allocatedPageNums {
