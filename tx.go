@@ -172,8 +172,6 @@ func (tx *tx) CreateCollection(name []byte) (*Collection, error) {
 		return nil, writeInsideReadTxErr
 	}
 
-	rootCollection := tx.getRootCollection()
-
 	newCollectionPage, err := tx.db.writeNode(NewEmptyNode())
 	if err != nil {
 		return nil, err
@@ -182,15 +180,7 @@ func (tx *tx) CreateCollection(name []byte) (*Collection, error) {
 	newCollection := newEmptyCollection()
 	newCollection.name = name
 	newCollection.root = newCollectionPage.pageNum
-	newCollection.tx = tx
-	collectionBytes := newCollection.serialize()
-
-	err = rootCollection.Put(name, collectionBytes.value)
-	if err != nil {
-		return nil, err
-	}
-
-	return newCollection, nil
+	return tx.createCollection(newCollection)
 }
 
 func (tx *tx) DeleteCollection(name []byte) error {
