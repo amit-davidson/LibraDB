@@ -52,61 +52,8 @@ func (tx *tx) writeNode(node *Node) *Node {
 	return node
 }
 
-func (tx *tx) writeNodes(nodes ...*Node) {
-	for _, node := range nodes {
-		tx.writeNode(node)
-	}
-}
-
 func (tx *tx) deleteNode(node *Node) {
 	tx.pagesToDelete = append(tx.pagesToDelete, node.pageNum)
-}
-
-// This will be used for implementing COW. The idea is to mark all the dirty collection, then for each collection,
-// traverse it's dirty in post order and commit child page. Then take the new page numbers, assign them to the parent,
-// and save him as well and so. After we wrote all collections, rewrite the root node with the new collections roots.
-// Rewrite the freelist with the newly allocated pages.  Finally, rewrite the meta page, so the new root node will take
-// effect.
-// COW will give us atomicity as new pages cannot be seen until the root node is written. This way, in case of a failure
-// or a rollback no harm will be done as nothing was committed to the database.
-//func (tx *tx) commitNode(node *Node) error {
-//	oldPageNum := node.num
-//	node.num = 0
-//
-//	newNode, err := tx.db.writeNode(node)
-//	if err != nil {
-//		return err
-//	}
-//	tx.committedNodes[oldPageNum] = newNode.num
-//	tx.deleteNode(node)
-//	return nil
-//}
-//
-//// saveDirtyNodes saves the tree in a post order way. post order is used since child pages are written to the disk and
-//// are given new page id, only then we can update the parent node with new page of the child node.
-//func (tx *tx) saveDirtyNodes(node *Node) error {
-//	if len(node.childNodes) == 0 {
-//		return tx.commitNode(node)
-//	}
-//
-//	for i, childNodePgid := range node.childNodes {
-//		if childNode, ok := tx.dirtyNodes[childNodePgid]; ok {
-//			err := tx.saveDirtyNodes(childNode)
-//			if err != nil {
-//				return err
-//			}
-//		}
-//		node.childNodes[i] = tx.committedNodes[childNodePgid]
-//	}
-//
-//	return tx.commitNode(node)
-//}
-
-func (tx *tx) getRootCollection() *Collection {
-	rootCollection := newEmptyCollection()
-	rootCollection.root = tx.db.root
-	rootCollection.tx = tx
-	return rootCollection
 }
 
 func (tx *tx) Rollback() {
@@ -153,6 +100,54 @@ func (tx *tx) Commit() error {
 	tx.allocatedPageNums = nil
 	tx.db.rwlock.Unlock()
 	return nil
+}
+
+
+// This will be used for implementing COW. The idea is to mark all the dirty collection, then for each collection,
+// traverse it's dirty in post order and commit child page. Then take the new page numbers, assign them to the parent,
+// and save him as well and so. After we wrote all collections, rewrite the root node with the new collections roots.
+// Rewrite the freelist with the newly allocated pages.  Finally, rewrite the meta page, so the new root node will take
+// effect.
+// COW will give us atomicity as new pages cannot be seen until the root node is written. This way, in case of a failure
+// or a rollback no harm will be done as nothing was committed to the database.
+//func (tx *tx) commitNode(node *Node) error {
+//	oldPageNum := node.num
+//	node.num = 0
+//
+//	newNode, err := tx.db.writeNode(node)
+//	if err != nil {
+//		return err
+//	}
+//	tx.committedNodes[oldPageNum] = newNode.num
+//	tx.deleteNode(node)
+//	return nil
+//}
+//
+//// saveDirtyNodes saves the tree in a post order way. post order is used since child pages are written to the disk and
+//// are given new page id, only then we can update the parent node with new page of the child node.
+//func (tx *tx) saveDirtyNodes(node *Node) error {
+//	if len(node.childNodes) == 0 {
+//		return tx.commitNode(node)
+//	}
+//
+//	for i, childNodePgid := range node.childNodes {
+//		if childNode, ok := tx.dirtyNodes[childNodePgid]; ok {
+//			err := tx.saveDirtyNodes(childNode)
+//			if err != nil {
+//				return err
+//			}
+//		}
+//		node.childNodes[i] = tx.committedNodes[childNodePgid]
+//	}
+//
+//	return tx.commitNode(node)
+//}
+
+func (tx *tx) getRootCollection() *Collection {
+	rootCollection := newEmptyCollection()
+	rootCollection.root = tx.db.root
+	rootCollection.tx = tx
+	return rootCollection
 }
 
 func (tx *tx) GetCollection(name []byte) (*Collection, error) {

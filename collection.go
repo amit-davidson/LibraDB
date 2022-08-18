@@ -97,7 +97,7 @@ func (c *Collection) Put(key []byte, value []byte) error {
 		// Add item to the leaf node
 		nodeToInsertIn.addItem(i, insertionIndex)
 	}
-	nodeToInsertIn.tx.writeNode(nodeToInsertIn)
+	nodeToInsertIn.writeNode(nodeToInsertIn)
 
 	ancestors, err := c.getNodes(ancestorsIndexes)
 	if err != nil {

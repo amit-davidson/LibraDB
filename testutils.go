@@ -64,9 +64,9 @@ func areTreesEqualHelper(t *testing.T, n1, n2 *Node) {
 	areNodesEqual(t, n1, n2)
 	// Exit condition: child node -> len(n1.childNodes) == 0
 	for i := 0; i < len(n1.childNodes); i++ {
-		node1, err := n1.tx.getNode(n1.childNodes[i])
+		node1, err := n1.getNode(n1.childNodes[i])
 		require.NoError(t, err)
-		node2, err := n2.tx.getNode(n2.childNodes[i])
+		node2, err := n2.getNode(n2.childNodes[i])
 		areTreesEqualHelper(t, node1, node2)
 	}
 }
