@@ -11,8 +11,6 @@ type DB struct {
 }
 
 func Open(path string, options *Options) (*DB, error) {
-	var err error
-
 	options.pageSize = os.Getpagesize()
 	dal, err := newDal(path, options)
 	if err != nil {
