@@ -391,10 +391,17 @@ func (n *Node) removeItemFromInternal(index int) ([]int, error) {
 	affectedNodes = append(affectedNodes, index)
 
 	// Starting from its left child, descend to the rightmost descendant.
-	aNode, _ := n.getNode(n.childNodes[index])
+	aNode, err := n.getNode(n.childNodes[index])
+	if err != nil {
+		return nil, err
+	}
+
 	for !aNode.isLeaf() {
 		traversingIndex := len(n.childNodes) - 1
-		aNode, _ = n.getNode(n.childNodes[traversingIndex])
+		aNode, err = n.getNode(n.childNodes[traversingIndex])
+		if err != nil {
+			return nil, err
+		}
 		affectedNodes = append(affectedNodes, traversingIndex)
 	}
 
