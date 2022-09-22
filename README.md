@@ -9,6 +9,8 @@
 LibraDB is a simple, persistent key/value store written in pure Go. The project aims to provide a working yet simple
 example of a working database. If you're interested in databases, I encourage you to start here.
 
+This database accompanies  my [blog post](https://betterprogramming.pub/build-a-nosql-database-from-the-scratch-in-1000-lines-of-code-8ed1c15ed924) on how to write a database from scratch.
+
 ## Installing
 
 To start using LibraDB, install Go and run `go get`:
