@@ -40,11 +40,11 @@ func main() {
 }
 ```
 ## Transactions
-Read-only and read-write transactions are supported. LibraDB allows multiple read transactions and one read-write 
+Read-only and read-write transactions are supported. LibraDB allows multiple read transactions or one read-write 
 transaction at the same time. Transactions are goroutine-safe.
 
-LibraDB has an isolation level: [Read committed](https://en.wikipedia.org/wiki/Isolation_(database_systems)#Read_committed).
-In simpler words, it restricts the reader from seeing any intermediate, uncommitted, 'dirty' changes.
+LibraDB has an isolation level: [Serializable](https://en.wikipedia.org/wiki/Isolation_(database_systems)#Serializable).
+In simpler words, transactions are executed one after another and not at the same time.This is the highest isolation level.
 
 ### Read-write transactions
 
